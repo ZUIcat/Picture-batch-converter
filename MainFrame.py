@@ -101,10 +101,9 @@ class MainFrame(wx.Frame):
         self.b_Start.Bind(wx.EVT_BUTTON, self.buttonClicked)
 
         self.tC_Input.SetDropTarget(MyDropTarget(self.tC_Input, self.lTC_LOG))
-        self.initSet()
         self.panel.SetSizer(self.bS_Root)
+        self.initSet()
         self.Center()
-        ImageConverter.init(self.lTC_LOG)
 
     def initSet(self):
         #SET
@@ -158,6 +157,7 @@ class MainFrame(wx.Frame):
                 self.lTC_LOG.AppendWarning("TODO: 快改逻辑!\n")
                 return
 
+            logTextCtrl = self.lTC_LOG
             multiple = float(self.tC_Multiple.GetValue())
             processNum = int(self.tC_Process.GetValue())
             filters = C.FILTERS[self.c_Filters.GetStringSelection()]
@@ -169,12 +169,12 @@ class MainFrame(wx.Frame):
                 method = self.c_W_method.GetSelection() + 1
                 if os.path.isfile(pathInput):
                     ImageConverter.convertImage(
-                        imageFormat, pathInput, pathOutput, multiple, filters,
+                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
                         toRGB, lossless=lossless, quality=quality, method=method
                     )
                 elif os.path.isdir(pathInput):
                     ImageConverter.convertImages(
-                        imageFormat, pathInput, pathOutput, multiple, filters,
+                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
                         toRGB, processNum, lossless=lossless, quality=quality, method=method
                     )
                 else:
@@ -184,12 +184,12 @@ class MainFrame(wx.Frame):
                 optimize = self.cB_P_optimize.GetValue()
                 if os.path.isfile(pathInput):
                     ImageConverter.convertImage(
-                        imageFormat, pathInput, pathOutput, multiple, filters,
+                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
                         toRGB, optimize=optimize
                     )
                 elif os.path.isdir(pathInput):
                     ImageConverter.convertImages(
-                        imageFormat, pathInput, pathOutput, multiple, filters,
+                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
                         toRGB, processNum, optimize=optimize
                     )
                 else:
@@ -201,24 +201,13 @@ class MainFrame(wx.Frame):
                 progressive = self.cB_J_progressive.GetValue()
                 if os.path.isfile(pathInput):
                     ImageConverter.convertImage(
-                        imageFormat, pathInput, pathOutput, multiple, filters,
+                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
                         toRGB, optimize=optimize, quality=quality, progressive=progressive
                     )
                 elif os.path.isdir(pathInput):
                     ImageConverter.convertImages(
-                        imageFormat, pathInput, pathOutput, multiple, filters,
+                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
                         toRGB, processNum, optimize=optimize, quality=quality, progressive=progressive
                     )
                 else:
                     self.lTC_LOG.AppendError(C.E_INPUT_PATH_NOT_EXIST)
-
-
-def main():
-    app = wx.App()
-    mainFrame = MainFrame(None)
-    mainFrame.Show()
-    app.MainLoop()
-
-
-if __name__ == '__main__':
-    main()

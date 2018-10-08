@@ -8,24 +8,16 @@ from LogTextCtrl import LogTextCtrl as L
 from MyModuleV1 import walkFiles
 
 # ------global variables------ #
-g_logTextCtrl = None
 g_queue = None
 # ------global variables------ #
 
 
-# ------init method------ #
-def init(logTextCtrl):
-    global g_logTextCtrl
-    g_logTextCtrl = logTextCtrl
+# ------get global variables------ #
+def getGlobalVariables(queue):
     Image.MAX_IMAGE_PIXELS = None
-# ------init method------ #
-
-
-# ------get queue------ #
-def getQueue(queue):
     global g_queue
     g_queue = queue
-# ------get queue------ #
+# ------get global variables------ #
 
 
 # ------get image information------ #
@@ -49,8 +41,7 @@ def getImageInfo(imagePath, isOld):
 
 
 # ------convert image------ #
-def convertImage(imageFormat, oldFilePath, newFilePath, multiple, filters, toRGB, **kwargs):
-    global g_logTextCtrl
+def convertImage(logTextCtrl, imageFormat, oldFilePath, newFilePath, multiple, filters, toRGB, **kwargs):
     try:
         if not os.path.isdir(os.path.dirname(newFilePath)):
             os.makedirs(os.path.dirname(newFilePath))
@@ -62,14 +53,14 @@ def convertImage(imageFormat, oldFilePath, newFilePath, multiple, filters, toRGB
                 filters
             )
             image.save(newFilePath, format=imageFormat, **kwargs)
-        g_logTextCtrl.AppendLogAuto(
+        logTextCtrl.AppendLogAuto(
             getImageInfo(oldFilePath, True),
             getImageInfo(newFilePath, False)
         )
     except Exception as e:
-        g_logTextCtrl.AppendError(C.E_UNKNOWEN + repr(e) + "\n")
+        logTextCtrl.AppendError(C.E_UNKNOWEN + repr(e) + "\n")
     else:
-        g_logTextCtrl.AppendLog(C.L_IMAGE_CONVERSION_SUCCEEDED)
+        logTextCtrl.AppendLog(C.L_IMAGE_CONVERSION_SUCCEEDED)
 # ------convert image------ #
 
 
@@ -102,14 +93,13 @@ def _convertImage(imageFormat, oldFilePath, newFilePath, multiple, filters, toRG
 
 
 # ------convert images------ #
-def convertImages(imageFormat, oldDirPath, newDirPath, multiple, filters, toRGB, processNum, **kwargs):
-    global g_logTextCtrl
+def convertImages(logTextCtrl, imageFormat, oldDirPath, newDirPath, multiple, filters, toRGB, processNum, **kwargs):
     global g_queue
     oldDirPath = os.path.abspath(oldDirPath)
     newDirPath = os.path.abspath(newDirPath)
     try:
         queue = Queue()
-        pool = Pool(processNum, getQueue, (queue,))
+        pool = Pool(processNum, getGlobalVariables, (queue,))
         oldFilePathList = walkFiles(oldDirPath, C.FORMATS)
         for oldFilePath in oldFilePathList:
             newFilePath = os.path.splitext(
@@ -123,9 +113,10 @@ def convertImages(imageFormat, oldDirPath, newDirPath, multiple, filters, toRGB,
         pool.close()
         for _, __ in enumerate(oldFilePathList):
             result = queue.get()
-            g_logTextCtrl.AppendLogAuto(result)
+            logTextCtrl.AppendLogAuto(result)
+        pool.join()
     except Exception as e:
-        g_logTextCtrl.AppendError(C.E_UNKNOWEN + repr(e) + "\n")
+        logTextCtrl.AppendError(C.E_UNKNOWEN + repr(e) + "\n")
     else:
-        g_logTextCtrl.AppendLog(C.L_IMAGE_CONVERSION_FINISHED)
+        logTextCtrl.AppendLog(C.L_IMAGE_CONVERSION_FINISHED)
 # ------convert images------ #

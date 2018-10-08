@@ -42,13 +42,12 @@ class LogTextCtrl(wx.TextCtrl):
         for text in autoText:
             if isinstance(text, tuple):
                 self.AppendLogAuto(*text)
-                return
-
-            if text.startswith(LogTextCtrl.ID_LOG):
-                self.AppendLog(text.lstrip(LogTextCtrl.ID_LOG))
-            elif text.startswith(LogTextCtrl.ID_WARNING):
-                self.AppendWarning(text.lstrip(LogTextCtrl.ID_WARNING))
-            elif text.startswith(LogTextCtrl.ID_ERROR):
-                self.AppendError(text.lstrip(LogTextCtrl.ID_ERROR))
-            else:
-                self.AppendText(text)
+            elif isinstance(text, str):
+                if text.startswith(LogTextCtrl.ID_LOG):
+                    self.AppendLog(text.lstrip(LogTextCtrl.ID_LOG))
+                elif text.startswith(LogTextCtrl.ID_WARNING):
+                    self.AppendWarning(text.lstrip(LogTextCtrl.ID_WARNING))
+                elif text.startswith(LogTextCtrl.ID_ERROR):
+                    self.AppendError(text.lstrip(LogTextCtrl.ID_ERROR))
+                else:
+                    self.AppendText(text)
