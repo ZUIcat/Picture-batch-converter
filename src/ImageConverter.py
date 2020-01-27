@@ -41,22 +41,21 @@ def getImageInfo(imagePath, isOld):
 
 
 # ------convert image------ #
-def convertImage(logTextCtrl, imageFormat, oldFilePath, newFilePath, multiple, filters, toRGB, **kwargs):
+def convertImage(logTextCtrl, imageFormat, oldFilePath, newFilePath, multiple, filters, toModes, **kwargs):
     try:
         if not os.path.isdir(os.path.dirname(newFilePath)):
             os.makedirs(os.path.dirname(newFilePath))
         with Image.open(oldFilePath) as image:
-            if toRGB:
-                image = image.convert("RGB")
-            image.thumbnail(
-                (image.width//multiple, image.height//multiple),
-                filters
-            )
+            if not toModes is None:
+                image = image.convert(toModes)
+            if multiple > 1.0:
+                image.thumbnail(
+                    (image.width//multiple, image.height//multiple),
+                    filters)
             image.save(newFilePath, format=imageFormat, **kwargs)
         logTextCtrl.AppendLogAuto(
             getImageInfo(oldFilePath, True),
-            getImageInfo(newFilePath, False)
-        )
+            getImageInfo(newFilePath, False))
     except Exception as e:
         logTextCtrl.AppendError(C.E_UNKNOWEN + repr(e) + "\n")
     else:
@@ -67,18 +66,18 @@ def convertImage(logTextCtrl, imageFormat, oldFilePath, newFilePath, multiple, f
 # ------_convert image------ #
 # Program private method.
 # Do not call this method.
-def _convertImage(imageFormat, oldFilePath, newFilePath, multiple, filters, toRGB, **kwargs):
+def _convertImage(imageFormat, oldFilePath, newFilePath, multiple, filters, toModes, **kwargs):
     global g_queue
     try:
         if not os.path.isdir(os.path.dirname(newFilePath)):
             os.makedirs(os.path.dirname(newFilePath))
         with Image.open(oldFilePath) as image:
-            if toRGB:
-                image = image.convert("RGB")
-            image.thumbnail(
-                (image.width//multiple, image.height//multiple),
-                filters
-            )
+            if not toModes is None:
+                image = image.convert(toModes)
+            if multiple > 1.0:
+                image.thumbnail(
+                    (image.width//multiple, image.height//multiple),
+                    filters)
             image.save(newFilePath, format=imageFormat, **kwargs)
         g_queue.put(
             (getImageInfo(oldFilePath, True),
@@ -93,7 +92,7 @@ def _convertImage(imageFormat, oldFilePath, newFilePath, multiple, filters, toRG
 
 
 # ------convert images------ #
-def convertImages(logTextCtrl, imageFormat, oldDirPath, newDirPath, multiple, filters, toRGB, processNum, **kwargs):
+def convertImages(gauge, logTextCtrl, imageFormat, oldDirPath, newDirPath, multiple, filters, toModes, processNum, **kwargs):
     global g_queue
     oldDirPath = os.path.abspath(oldDirPath)
     newDirPath = os.path.abspath(newDirPath)
@@ -107,13 +106,18 @@ def convertImages(logTextCtrl, imageFormat, oldDirPath, newDirPath, multiple, fi
             )[0] + "." + imageFormat.lower()
             pool.apply_async(
                 _convertImage,
-                (imageFormat, oldFilePath, newFilePath, multiple, filters, toRGB),
+                (imageFormat, oldFilePath, newFilePath, multiple, filters, toModes),
                 kwargs
             )
         pool.close()
-        for _, __ in enumerate(oldFilePathList):
+        fileNum = len(oldFilePathList)
+        fileEDNum = 0
+        gauge.SetRange(fileNum)
+        for _ in range(fileNum):
             result = queue.get()
             logTextCtrl.AppendLogAuto(result)
+            fileEDNum += 1
+            gauge.SetValue(fileEDNum)
         pool.join()
     except Exception as e:
         logTextCtrl.AppendError(C.E_UNKNOWEN + repr(e) + "\n")

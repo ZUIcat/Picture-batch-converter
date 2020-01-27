@@ -25,6 +25,7 @@ class MainFrame(wx.Frame):
         self.bS_PNG = wx.BoxSizer(wx.HORIZONTAL)
         self.bS_JPEG = wx.BoxSizer(wx.HORIZONTAL)
         self.bS_LOG = wx.BoxSizer(wx.HORIZONTAL)
+        self.bS_Bar = wx.BoxSizer(wx.HORIZONTAL)
         self.bS_Button = wx.BoxSizer(wx.HORIZONTAL)
         self.bS_Root.Add(self.bS_Input)
         self.bS_Root.Add(self.bS_Output)
@@ -33,6 +34,7 @@ class MainFrame(wx.Frame):
         self.bS_Root.Add(self.bS_PNG)
         self.bS_Root.Add(self.bS_JPEG)
         self.bS_Root.Add(self.bS_LOG)
+        self.bS_Root.Add(self.bS_Bar)
         self.bS_Root.Add(self.bS_Button)
 
         self.sT_Input = wx.StaticText(self.panel, label=C.LST_INPUT, size=C.SI_DEFAULT)
@@ -53,13 +55,13 @@ class MainFrame(wx.Frame):
         self.sT_Process = wx.StaticText(self.panel, label=C.LST_PROCESS, size=C.SI_DEFAULT)
         self.tC_Process = wx.TextCtrl(self.panel, size=(40, C.SI_DEFAULT[1]))
         self.c_Filters = wx.Choice(self.panel, size=(130, C.SI_DEFAULT[1]), choices=list(C.FILTERS.keys()))
-        self.cB_RGB = wx.CheckBox(self.panel, label=C.LCB_RGB, size=C.SI_DEFAULT)
+        self.c_Modes = wx.Choice(self.panel, size=(100, C.SI_DEFAULT[1]), choices=list(C.MODES.keys()))
         self.bS_SET.Add(self.sT_Multiple, flag=wx.ALL, border=C.B_DEFAULT)
         self.bS_SET.Add(self.tC_Multiple, flag=wx.ALL, border=C.B_DEFAULT)
         self.bS_SET.Add(self.sT_Process, flag=wx.ALL, border=C.B_DEFAULT)
         self.bS_SET.Add(self.tC_Process, flag=wx.ALL, border=C.B_DEFAULT)
         self.bS_SET.Add(self.c_Filters, flag=wx.ALL, border=C.B_DEFAULT)
-        self.bS_SET.Add(self.cB_RGB, flag=wx.ALL, border=C.B_DEFAULT)
+        self.bS_SET.Add(self.c_Modes, flag=wx.ALL, border=C.B_DEFAULT)
 
         self.rB_WEBP = wx.RadioButton(self.panel, label=C.LRB_WEBP, size=(50, C.SI_DEFAULT[1]), style=wx.RB_GROUP)
         self.cB_W_lossless = wx.CheckBox(self.panel, label=C.LCB_W_LOSSLESS, size=(70, C.SI_DEFAULT[1]))
@@ -90,6 +92,9 @@ class MainFrame(wx.Frame):
         self.lTC_LOG = LogTextCtrl(self.panel, size=(C.SI_MAX[0], C.SI_MAX[1] * 14), )
         self.bS_LOG.Add(self.lTC_LOG, flag=wx.ALL, border=C.B_DEFAULT)
 
+        self.gauge = wx.Gauge(self.panel, size=C.SI_MAX)
+        self.bS_Bar.Add(self.gauge, flag=wx.ALL, border=C.B_DEFAULT)
+
         self.b_Clear = wx.Button(self.panel, label=C.LB_CLEAR, size=C.SI_DEFAULT)
         self.b_Help = wx.Button(self.panel, label=C.LB_HELP, size=C.SI_DEFAULT)
         self.b_Start = wx.Button(self.panel, label=C.LB_START, size=C.SI_DEFAULT)
@@ -110,7 +115,7 @@ class MainFrame(wx.Frame):
         self.tC_Multiple.SetValue(C.IVTC_MULTIPLE)
         self.tC_Process.SetValue(C.IVTC_PROCESS)
         self.c_Filters.SetSelection(C.ISC_FILTERS)
-        self.cB_RGB.SetValue(C.IVCB_RGB)
+        self.c_Modes.SetSelection(C.ISC_MODES)
         #WEBP
         self.rB_WEBP.SetValue(C.IVRB_WEBP)
         self.cB_W_lossless.SetValue(C.IVCB_W_LOSSLESS)
@@ -146,6 +151,7 @@ class MainFrame(wx.Frame):
     def buttonClicked(self, event):
         if event.GetId() == self.b_Clear.GetId():
             self.lTC_LOG.Clear()
+            self.gauge.SetValue(0)
         elif event.GetId() == self.b_Help.GetId():
             self.lTC_LOG.AppendWarning("TODO: 快写帮助页面!\n")
         elif event.GetId() == self.b_Start.GetId():
@@ -157,11 +163,12 @@ class MainFrame(wx.Frame):
                 self.lTC_LOG.AppendWarning("TODO: 快改逻辑!\n")
                 return
 
+            gauge = self.gauge
             logTextCtrl = self.lTC_LOG
             multiple = float(self.tC_Multiple.GetValue())
             processNum = int(self.tC_Process.GetValue())
             filters = C.FILTERS[self.c_Filters.GetStringSelection()]
-            toRGB = self.cB_RGB.GetValue()
+            toModes = C.MODES[self.c_Modes.GetStringSelection()]
             if self.rB_WEBP.GetValue():
                 imageFormat = self.rB_WEBP.GetLabel()
                 lossless = self.cB_W_lossless.GetValue()
@@ -170,12 +177,12 @@ class MainFrame(wx.Frame):
                 if os.path.isfile(pathInput):
                     ImageConverter.convertImage(
                         logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
-                        toRGB, lossless=lossless, quality=quality, method=method
+                        toModes, lossless=lossless, quality=quality, method=method
                     )
                 elif os.path.isdir(pathInput):
                     ImageConverter.convertImages(
-                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
-                        toRGB, processNum, lossless=lossless, quality=quality, method=method
+                        gauge, logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
+                        toModes, processNum, lossless=lossless, quality=quality, method=method
                     )
                 else:
                     self.lTC_LOG.AppendError(C.E_INPUT_PATH_NOT_EXIST)
@@ -185,12 +192,12 @@ class MainFrame(wx.Frame):
                 if os.path.isfile(pathInput):
                     ImageConverter.convertImage(
                         logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
-                        toRGB, optimize=optimize
+                        toModes, optimize=optimize
                     )
                 elif os.path.isdir(pathInput):
                     ImageConverter.convertImages(
-                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
-                        toRGB, processNum, optimize=optimize
+                        gauge, logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
+                        toModes, processNum, optimize=optimize
                     )
                 else:
                     self.lTC_LOG.AppendError(C.E_INPUT_PATH_NOT_EXIST)
@@ -202,12 +209,12 @@ class MainFrame(wx.Frame):
                 if os.path.isfile(pathInput):
                     ImageConverter.convertImage(
                         logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
-                        toRGB, optimize=optimize, quality=quality, progressive=progressive
+                        toModes, optimize=optimize, quality=quality, progressive=progressive
                     )
                 elif os.path.isdir(pathInput):
                     ImageConverter.convertImages(
-                        logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
-                        toRGB, processNum, optimize=optimize, quality=quality, progressive=progressive
+                        gauge, logTextCtrl, imageFormat, pathInput, pathOutput, multiple, filters,
+                        toModes, processNum, optimize=optimize, quality=quality, progressive=progressive
                     )
                 else:
                     self.lTC_LOG.AppendError(C.E_INPUT_PATH_NOT_EXIST)

@@ -6,14 +6,14 @@ from PIL import Image
 
 class C():
     # ------OTHER------
-    T_MAIN_FRAME = "图片批量处理GUI版 - Ver 2.0"
+    T_MAIN_FRAME = "图片批量处理GUI版 - Ver 2.01"
     PATH_SUFFIX = "[NEW]"
     ST_FRAME = wx.CAPTION | wx.SYSTEM_MENU | wx.CLOSE_BOX | wx.MINIMIZE_BOX
     B_DEFAULT = 5
     # ------OTHER------
 
     # ------SIZE------
-    SI_MAIN_FRAME = (550, 650)
+    SI_MAIN_FRAME = (550, 690)
     SI_DEFAULT = (-1, 25)
     SI_MAX = (9999, 25)
     # ------SIZE------
@@ -23,7 +23,6 @@ class C():
     LST_OUTPUT = "输出文件(夹):"
     LST_MULTIPLE = "缩小倍数:"
     LST_PROCESS = "进程数:"
-    LCB_RGB = "转换为RGB"
     LRB_WEBP = "WEBP"
     LRB_PNG = "PNG"
     LRB_JPEG = "JPEG"
@@ -46,7 +45,7 @@ class C():
     IVTC_MULTIPLE = "1.2"
     IVTC_PROCESS = str(os.cpu_count())
     ISC_FILTERS = 6 - 1
-    IVCB_RGB = False
+    ISC_MODES = 1 - 1
     # WEBP
     IVRB_WEBP = True
     IVCB_W_LOSSLESS = False
@@ -77,6 +76,35 @@ class C():
         "过滤器: BICUBIC": Image.BICUBIC,
         "过滤器: LANCZOS": Image.LANCZOS}
     # ------FILTERS------
+
+    # ------MODES------
+    MODES = {
+        "模式: 不转换": None,
+        "模式: 1": "1",
+        "模式: L": "L",
+        "模式: P": "P",
+        "模式: RGB": "RGB",
+        "模式: RGBA": "RGBA",
+        "模式: CMYK": "CMYK",
+        "模式: YCbCr": "YCbCr",
+        "模式: LAB": "LAB",
+        "模式: HSV": "HSV",
+        "模式: I": "I",
+        "模式: F": "F",
+        "模式: LA": "LA",
+        "模式: PA": "PA",
+        "模式: RGBX": "RGBX",
+        "模式: RGBa": "RGBa",
+        "模式: La": "La",
+        "模式: I;16": "I;16",
+        "模式: I;16L": "I;16L",
+        "模式: I;16B": "I;16B",
+        "模式: I;16N": "I;16N",
+        "模式: BGR;15": "BGR;15",
+        "模式: BGR;16": "BGR;16",
+        "模式: BGR;24": "BGR;24",
+        "模式: BGR;32": "BGR;32"}
+    # ------MODES------
 
     # ------LOG------
     L_DIVIDING_LINE = "------------------------------------------------------------------------------\n"
