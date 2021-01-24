@@ -132,7 +132,8 @@ class C():
     # ------ERROR------
 
     # ------FORMATS------
-    FORMATS = ["BMP", "ICO", "JPEG", "JPG", "PNG", "TIFF", "WEBP", "PSD"]
+    FORMATS = ["BMP", "ICO", "JPEG", "JPG", "PNG",
+               "TIFF", "WEBP", "PSD", "J2P", "JPX", "J2K", "JP2"]
     FORMATS_RAW = ["BMP", "EPS", "GIF", "ICNS", "ICO", "IM", "JPEG", "JPG", "MSP", "PCX", "PNG", "PPM", "SGI", "TGA", "TIFF", "WebP", "XBM", "BLP", "CUR", "DCX", "DDS", "FLI",
                    "FPX", "FTEX", "GBR", "GD", "IMT", "IPTC", "MCIDAS", "MIC", "MPO", "PCD", "PIXAR", "PSD", "WAL", "XPM", "PALM", "PDF", "BUFR", "FITS", "GRIB", "HDF5", "MPEG", "WMF"]
     # ------FORMATS------

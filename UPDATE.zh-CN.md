@@ -2,6 +2,10 @@
 
 [Click here to open the English UPDATE](./UPDATE.md)
 
+## 2020.02.28
+
+- 添加了对```JPEG 2000```格式的支持。
+
 ## 2020.01.27
 
 - 版本号更新为 2.01

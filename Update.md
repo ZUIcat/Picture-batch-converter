@@ -2,6 +2,10 @@
 
 [点击此处打开中文版 UPDATE](./UPDATE.zh-CN.md)
 
+## 2020.02.28
+
+- Add support for ```JPEG 2000``` formats。
+
 ## 2020.01.27
 
 - Update version number to 2.01
